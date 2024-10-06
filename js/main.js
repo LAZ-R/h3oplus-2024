@@ -68,7 +68,11 @@ const onPlayPauseButtonClick = () => {
   let playingSectionPlayPauseButton = document.getElementById('playingSectionPlayPauseButton');
   isCurrentlyPlaying = !isCurrentlyPlaying;
   if (isCurrentlyPlaying) {
-    playCurrentSong();
+    if (wavesurfer.getCurrentTime() != 0) {
+      wavesurfer.play();
+    } else {
+      playCurrentSong();
+    }
     turnAnimationsOn();
     playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-s icon-fg-0')}`;
     playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
