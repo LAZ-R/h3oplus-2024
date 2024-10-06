@@ -161,7 +161,13 @@ const showLoaders = () => {
   let elements = document.getElementsByClassName('loader-container');
   if (elements.length != 0) {
     for (let element of elements) {
-      element.classList.replace('inactive', 'active')
+      if (element.classList.contains('song-card-loader')) {
+        if (element.classList.contains(`song-${CURRENT_PLAYING_SONG.id}`)) {
+          element.classList.replace('inactive', 'active');
+        }
+      } else {
+        element.classList.replace('inactive', 'active');
+      }
     }
   }
 }
@@ -176,14 +182,17 @@ const hideLoaders = () => {
 }
 
 const playCurrentSong = () => {
+  // lecture en cours
   turnAnimationsOff();
-  showLoaders();
-  
-  document.getElementById('playingFooterPlayPauseButton').innerHTML = `${getSvgIcon('play', 'icon-s icon-fg-0')}`;
-  document.getElementById('playingSectionPlayPauseButton').innerHTML = `${getSvgIcon('play', 'icon-m icon-fg-0')}`;
+
+  // Préparation du loading
   setSongPlayingFooterIhm(CURRENT_PLAYING_SONG);
   setSongPlayingSectionIhm(CURRENT_PLAYING_SONG);
   setSongFooterCoverIhm(CURRENT_PLAYING_SONG);
+  refreshRepeatColor();
+  document.getElementById('playingFooterPlayPauseButton').innerHTML = ``;
+  document.getElementById('playingSectionPlayPauseButton').innerHTML = `${getSvgIcon('play', 'icon-m icon-fg-0')}`;
+  showLoaders();
 
   document.getElementById('waveform').innerHTML = '';
   wavesurfer = WaveSurfer.create({
@@ -193,8 +202,9 @@ const playCurrentSong = () => {
     barWidth: .1,
     height: 'auto'
   });
-  
   wavesurfer.load(CURRENT_PLAYING_SONG.audioSrc);
+
+  // Après loading
   wavesurfer.on('ready', function () {
       //viderLoading();
       let totalTime = Math.round(wavesurfer.getDuration());
@@ -206,7 +216,6 @@ const playCurrentSong = () => {
       document.getElementById('playingSectionPlayPauseButton').innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
       turnAnimationsOn();
       hideLoaders();
-      refreshRepeatColor();
       setInterval(refreshTimingRelatedIhm, 100);
       wavesurfer.play();
   });
@@ -336,6 +345,7 @@ setHTMLTitle(APP_NAME);
 //HEADER.innerHTML = `<span>${APP_NAME}</span>`;
 DISCOGRAPHY_SECTION.innerHTML = `
   <div class="main-logo"></div>
+  <!-- <span class="logo-text">THE H<sup>3</sup>O<sub>+</sub> PROJECT</span> -->
   <h1>DISCOGRAPHIE</h1>
   <h2>Dernier titre</h2>
   <div class="songs-list-container">
@@ -366,7 +376,7 @@ PLAYING_SECTION.innerHTML = `
   <button onclick="goToNextTrack()">
     ${getSvgIcon('forward-step', 'icon-s icon-fg-0')}
   </button>
-  <button onclick="" style="margin-left: auto;">
+  <button onclick="" style="margin-left: auto;" class="is-liked-playing inactive">
     ${getSvgIcon('heart-empty', 'icon-s icon-fg-0')}
   </button>
   </div>
@@ -399,7 +409,7 @@ PLAYING_FOOTER.innerHTML = `
   <div class="progress-bar-container">
     <div id="playingFooterProgressBar" class="progress-bar nuwa"></div>
   </div>
-  <div class="loader-container inactive">
+  <div class="loader-container playing-footer-loader inactive">
     <div class="loader">
       <div class="bounce1"></div>
       <div class="bounce2"></div>
@@ -412,7 +422,7 @@ FOOTER.innerHTML = `
   <button onclick="onSectionButtonClick('discography')">
     ${getSvgIcon('list', 'icon-s icon-fg-0 inactive', 'discographyIcon')}
   </button>
-  <button onclick="onSectionButtonClick('playing')">
+  <button onclick="onSectionButtonClick('playing')" style="position: relative; justify-content-center">
     <div id="playingIcon" class="inactive"></div>
     <!-- ${getSvgIcon('chart-simple', 'icon-s icon-fg-0 inactive', 'playingIcon')} -->
   </button>

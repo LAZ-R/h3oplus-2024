@@ -42,6 +42,13 @@ export const setSongFooterCoverIhm = (song) => {
     <div class="moving-bars-container mb-container-${song.id} inactive" style="width: 24px; height: 24px;">
       <div class="pulsor"></div>
     </div>
+    <div class="loader-container footer-loader inactive">
+      <div class="loader">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+      </div>
+    </div>
   `;
 }
 
@@ -52,12 +59,19 @@ export const getSongCardIhm = (song, context) => {
       <div class="moving-bars-container mb-container-${song.id} inactive">
         <div class="pulsor"></div>
       </div>
+      <div class="loader-container song-card-loader song-${song.id} inactive">
+        <div class="loader">
+          <div class="bounce1"></div>
+          <div class="bounce2"></div>
+          <div class="bounce3"></div>
+        </div>
+      </div>
     </button>
     <button onclick="onSongCardClick(${song.id}, '${context}')" class="song-infos">
       <span>${song.name}</span>
       <span>${song.artist}</span>
     </button>
-    <button class="is-liked">
+    <button class="is-liked inactive">
       ${getSvgIcon('heart-empty', 'icon-s icon-fg-0')}
     </button>
   </div>
