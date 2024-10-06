@@ -52,3 +52,9 @@ export const getRandomHexColor = () => {
   // Convertit le nombre en une chaîne hexadécimale, et y ajoute un #
   return `#${randomColor.toString(16).padStart(6, '0')}`;
 }
+
+export const bpmToMillisecondsPerBeat = (bpm) => {
+  // Convertir le BPM en millisecondes par battement
+  let millisecondsPerBeat = (60 * 1000) / bpm;
+  return millisecondsPerBeat;
+}

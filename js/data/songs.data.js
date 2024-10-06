@@ -8,7 +8,7 @@ export const SONGS_BASE = [
     name: 'Alliances',
     audioSrc: 'medias/audio/mp3/nuwa/ALLIANCES.mp3',
     coverSrc: 'medias/images/covers/ALLIANCES.jpg',
-    duration: 180,
+    bpm: 97, // Vérifié sur FL
   },
   {
     id: 2,
@@ -16,7 +16,7 @@ export const SONGS_BASE = [
     name: 'Sinnoh',
     audioSrc: 'medias/audio/mp3/nuwa/SINNOH.mp3',
     coverSrc: 'medias/images/covers/SINNOH.jpg',
-    duration: 180,
+    bpm: 90, // Vérifié sur FL
   },
   {
     id: 3,
@@ -24,7 +24,7 @@ export const SONGS_BASE = [
     name: 'Reset',
     audioSrc: 'medias/audio/mp3/qargo/RESET.mp3',
     coverSrc: 'medias/images/covers/RESET.jpg',
-    duration: 180,
+    bpm: 122, // Vérifié sur FL
   },
   {
     id: 4,
@@ -32,7 +32,7 @@ export const SONGS_BASE = [
     name: 'War Gods',
     audioSrc: 'medias/audio/mp3/qargo/WAR_GODS.mp3',
     coverSrc: 'medias/images/covers/WAR_GODS.jpg',
-    duration: 180,
+    bpm: 130, // Vérifié sur FL
   },
   {
     id: 5,
@@ -40,7 +40,7 @@ export const SONGS_BASE = [
     name: 'Nouveaux horizons',
     audioSrc: 'medias/audio/mp3/nuwa/NOUVEAUX_HORIZONS.mp3',
     coverSrc: 'medias/images/covers/NOUVEAUX_HORIZONS.jpg',
-    duration: 180,
+    bpm: (120 / 2), // Vérifié sur FL
   },
   {
     id: 6,
@@ -48,7 +48,7 @@ export const SONGS_BASE = [
     name: 'Kotor',
     audioSrc: 'medias/audio/mp3/nuwa/KOTOR.mp3',
     coverSrc: 'medias/images/covers/KOTOR.jpg',
-    duration: 180,
+    bpm: (115.650 / 2), // Vérifié sur FL
   },
   {
     id: 7,
@@ -56,7 +56,7 @@ export const SONGS_BASE = [
     name: 'Burried',
     audioSrc: 'medias/audio/mp3/qargo/BURRIED.mp3',
     coverSrc: 'medias/images/covers/BURRIED.jpg',
-    duration: 180,
+    bpm: (130 / 2), // Vérifié sur FL
   },
   {
     id: 8,
@@ -64,7 +64,7 @@ export const SONGS_BASE = [
     name: 'Johto',
     audioSrc: 'medias/audio/mp3/nuwa/JOHTO.mp3',
     coverSrc: 'medias/images/covers/JOHTO.jpg',
-    duration: 180,
+    bpm: (128 / 2), // Vérifié sur FL
   },
   {
     id: 9,
@@ -72,7 +72,7 @@ export const SONGS_BASE = [
     name: 'Nappa',
     audioSrc: 'medias/audio/mp3/nuwa/NAPPA.mp3',
     coverSrc: 'medias/images/covers/NAPPA.jpg',
-    duration: 180,
+    bpm: (127 / 2), // Vérifié sur FL
   },
   {
     id: 10,
@@ -80,7 +80,7 @@ export const SONGS_BASE = [
     name: 'Dugong',
     audioSrc: 'medias/audio/mp3/nuwa/DUGONG.mp3',
     coverSrc: 'medias/images/covers/DUGONG.jpg',
-    duration: 180,
+    bpm: (128 / 2), // Vérifié sur FL
   },
   {
     id: 11,
@@ -88,7 +88,7 @@ export const SONGS_BASE = [
     name: 'Sobek',
     audioSrc: 'medias/audio/mp3/qargo/SOBEK.mp3',
     coverSrc: 'medias/images/covers/SOBEK.jpg',
-    duration: 180,
+    bpm: 88, // Vérifié sur FL
   },
   {
     id: 12,
@@ -96,7 +96,7 @@ export const SONGS_BASE = [
     name: 'Aube',
     audioSrc: 'medias/audio/mp3/nuwa/AUBE.mp3',
     coverSrc: 'medias/images/covers/AUBE.jpg',
-    duration: 180,
+    bpm: 88, // Vérifié sur FL
   },
   {
     id: 13,
@@ -104,7 +104,7 @@ export const SONGS_BASE = [
     name: 'Okyo',
     audioSrc: 'medias/audio/mp3/nuwa/OKYO.mp3',
     coverSrc: 'medias/images/covers/OKYO.jpg',
-    duration: 180,
+    bpm: 94, // Vérifié sur FL
   },
   {
     id: 14,
@@ -112,7 +112,7 @@ export const SONGS_BASE = [
     name: 'AWQA',
     audioSrc: 'medias/audio/mp3/qargo/AWQA.mp3',
     coverSrc: 'medias/images/covers/AWQA.jpg',
-    duration: 180,
+    bpm: 81, // Vérifié sur FL
   },
 ];
 

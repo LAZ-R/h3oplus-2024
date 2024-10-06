@@ -1,8 +1,8 @@
 import { requestWakeLock } from "./utils/wakelock.js";
 import { APP_NAME, APP_VERSION } from "../app-properties.js";
-import { getRandomIntegerBetween, setHTMLTitle } from "./utils/UTILS.js";
+import { bpmToMillisecondsPerBeat, getRandomIntegerBetween, setHTMLTitle } from "./utils/UTILS.js";
 import { getSvgIcon } from "./services/icons.service.js";
-import { getAllSongsCardsIhm, getLatestSong, getSongById, getSongCardIhm, setSongPlayingFooterIhm, setSongPlayingSectionIhm } from "./services/songs.service.js";
+import { getAllSongsCardsIhm, getLatestSong, getSongById, getSongCardIhm, setSongPlayingFooterIhm, setSongPlayingSectionIhm, setSongFooterCoverIhm } from "./services/songs.service.js";
 import { nuwa, SONGS } from "./data/songs.data.js";
 
 /* ########################################################### */
@@ -70,12 +70,12 @@ const onPlayPauseButtonClick = () => {
   if (isCurrentlyPlaying) {
     if (wavesurfer.getCurrentTime() != 0) {
       wavesurfer.play();
+      turnAnimationsOn();
+      playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-s icon-fg-0')}`;
+      playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
     } else {
       playCurrentSong();
     }
-    turnAnimationsOn();
-    playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-s icon-fg-0')}`;
-    playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
   } else {
     wavesurfer.pause();
     turnAnimationsOff();
@@ -104,7 +104,7 @@ export const onSongCardClick = (songId, context) => {
     if (isCurrentlyPlaying) {
       onSectionButtonClick('playing')
     } else {
-      playCurrentSong();
+      playCurrentSong(); // TODO à revoir, parce que du coup ça relance
     }
   }
   if (isCurrentlyPlaying && CURRENT_PLAYING_SONG.id !== songId) {
@@ -157,10 +157,33 @@ const refreshTimingRelatedIhm = () => {
 
 }
 
+const showLoaders = () => {
+  let elements = document.getElementsByClassName('loader-container');
+  if (elements.length != 0) {
+    for (let element of elements) {
+      element.classList.replace('inactive', 'active')
+    }
+  }
+}
+
+const hideLoaders = () => {
+  let elements = document.getElementsByClassName('loader-container');
+  if (elements.length != 0) {
+    for (let element of elements) {
+      element.classList.replace('active', 'inactive')
+    }
+  }
+}
+
 const playCurrentSong = () => {
   turnAnimationsOff();
+  showLoaders();
+  
+  document.getElementById('playingFooterPlayPauseButton').innerHTML = `${getSvgIcon('play', 'icon-s icon-fg-0')}`;
+  document.getElementById('playingSectionPlayPauseButton').innerHTML = `${getSvgIcon('play', 'icon-m icon-fg-0')}`;
   setSongPlayingFooterIhm(CURRENT_PLAYING_SONG);
   setSongPlayingSectionIhm(CURRENT_PLAYING_SONG);
+  setSongFooterCoverIhm(CURRENT_PLAYING_SONG);
 
   document.getElementById('waveform').innerHTML = '';
   wavesurfer = WaveSurfer.create({
@@ -178,20 +201,33 @@ const playCurrentSong = () => {
       //console.log(totalTime)
       //totalTime = lenghtToString(totalTime);
       //totalTimeDisplay.innerText = totalTime;
-      wavesurfer.play();
       isCurrentlyPlaying = true;
       document.getElementById('playingFooterPlayPauseButton').innerHTML = `${getSvgIcon('pause', 'icon-s icon-fg-0')}`;
       document.getElementById('playingSectionPlayPauseButton').innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
       turnAnimationsOn();
+      hideLoaders();
+      refreshRepeatColor();
       setInterval(refreshTimingRelatedIhm, 100);
+      wavesurfer.play();
   });
 
   wavesurfer.on('finish', function () {
-    goToNextTrack();
+    if (IS_REPEAT_ACTIVE) {
+      playCurrentSong();
+    } else {
+      goToNextTrack();
+    }
   });
 }
 
 const turnAnimationsOff = () => {
+  let pulsorElements = document.getElementsByClassName(`pulsor`);
+  if (pulsorElements.length != 0) {
+    for (let element of pulsorElements) {
+      element.style.animation = 'none';
+    }
+  }
+  
   let oldElements = document.getElementsByClassName(`moving-bars-container`);
   if (oldElements.length != 0) {
     for (let element of oldElements) {
@@ -200,9 +236,20 @@ const turnAnimationsOff = () => {
   }
 }
 const turnAnimationsOn = () => {
-  let newElements = document.getElementsByClassName(`mb-container-${CURRENT_PLAYING_SONG.id}`);
+  let millisecondsPerBeat = bpmToMillisecondsPerBeat(CURRENT_PLAYING_SONG.bpm);
+  console.log(millisecondsPerBeat / 1000);
+  document.documentElement.style.setProperty('--pulse-animation-timing', `${millisecondsPerBeat / 1000}s`);
+  
+  let newElements = document.getElementsByClassName(`pulsor`);
   if (newElements.length != 0) {
     for (let element of newElements) {
+      element.style.animation = 'pulsorAnimation var(--pulse-animation-timing) infinite linear';
+    }
+  }
+
+  let newElements2 = document.getElementsByClassName(`mb-container-${CURRENT_PLAYING_SONG.id}`);
+  if (newElements2.length != 0) {
+    for (let element of newElements2) {
       element.classList.replace('inactive', 'active');
     }
   }
@@ -255,6 +302,31 @@ const onPlayingSectionCoverClick = () => {
 }
 window.onPlayingSectionCoverClick = onPlayingSectionCoverClick;
 
+const onRepeatClick = () => {
+  let button = document.getElementById('repeatButton');
+  IS_REPEAT_ACTIVE = !IS_REPEAT_ACTIVE;
+  if (IS_REPEAT_ACTIVE) {
+    button.classList.replace('repeat-inactive', CURRENT_PLAYING_SONG.artist == nuwa ? 'repeat-active-nuwa' : 'repeat-active-qargo');
+  } else {
+    button.classList.remove('repeat-active-nuwa');
+    button.classList.remove('repeat-active-qargo');
+    button.classList.add('repeat-inactive');
+  }
+}
+window.onRepeatClick = onRepeatClick;
+
+const refreshRepeatColor = () => {
+  if (IS_REPEAT_ACTIVE) {
+    if (CURRENT_PLAYING_SONG.artist == nuwa) {
+      document.getElementById('repeatButton').classList.remove('repeat-active-qargo');
+      document.getElementById('repeatButton').classList.add('repeat-active-nuwa');
+    } else {
+      document.getElementById('repeatButton').classList.remove('repeat-active-nuwa');
+      document.getElementById('repeatButton').classList.add('repeat-active-qargo');
+    }
+  }
+}
+
 /* ########################################################### */
 /* DOM INITIALIZATION */
 /* ########################################################### */
@@ -282,6 +354,9 @@ PLAYING_SECTION.innerHTML = `
     <span id="playingSectionArtistName">Artist name</span>
   </div>
   <div class="controls-container">
+  <button id="repeatButton" class="repeat-inactive" onclick="onRepeatClick()" style="margin-right: auto;">
+    ${getSvgIcon('arrows-rotate', 'icon-s icon-fg-0')}
+  </button>
   <button onclick="goToPreviousTrack()">
     ${getSvgIcon('backward-step', 'icon-s icon-fg-0')}
   </button>
@@ -291,6 +366,9 @@ PLAYING_SECTION.innerHTML = `
   <button onclick="goToNextTrack()">
     ${getSvgIcon('forward-step', 'icon-s icon-fg-0')}
   </button>
+  <button onclick="" style="margin-left: auto;">
+    ${getSvgIcon('heart-empty', 'icon-s icon-fg-0')}
+  </button>
   </div>
   <div class="waveform-container">
     <div class="timer-container">
@@ -298,6 +376,14 @@ PLAYING_SECTION.innerHTML = `
       <span id="totalTime">00:00:00</span>
     </div>
     <div id="waveform"></div>
+  </div>
+
+  <div class="loader-container inactive">
+    <div class="loader full-page">
+      <div class="bounce1"></div>
+      <div class="bounce2"></div>
+      <div class="bounce3"></div>
+    </div>
   </div>
 `;
 
@@ -313,6 +399,13 @@ PLAYING_FOOTER.innerHTML = `
   <div class="progress-bar-container">
     <div id="playingFooterProgressBar" class="progress-bar nuwa"></div>
   </div>
+  <div class="loader-container inactive">
+    <div class="loader">
+      <div class="bounce1"></div>
+      <div class="bounce2"></div>
+      <div class="bounce3"></div>
+    </div>
+  </div>
 `;
 
 FOOTER.innerHTML = `
@@ -320,7 +413,8 @@ FOOTER.innerHTML = `
     ${getSvgIcon('list', 'icon-s icon-fg-0 inactive', 'discographyIcon')}
   </button>
   <button onclick="onSectionButtonClick('playing')">
-    ${getSvgIcon('play', 'icon-s icon-fg-0 inactive', 'playingIcon')}
+    <div id="playingIcon" class="inactive"></div>
+    <!-- ${getSvgIcon('chart-simple', 'icon-s icon-fg-0 inactive', 'playingIcon')} -->
   </button>
   <button onclick="onSectionButtonClick('likes')">
     ${getSvgIcon('heart', 'icon-s icon-fg-0 inactive', 'likesIcon')}
@@ -349,7 +443,9 @@ let wavesurfer = WaveSurfer.create({
 let CURRENT_CONTEXT = 'allSongs';
 let CURRENT_PLAYLIST = SONGS;
 let CURRENT_PLAYING_SONG = getLatestSong();
+let IS_REPEAT_ACTIVE = false;
 
 setSongPlayingFooterIhm(CURRENT_PLAYING_SONG);
 setSongPlayingSectionIhm(CURRENT_PLAYING_SONG);
+setSongFooterCoverIhm(CURRENT_PLAYING_SONG);
 showSection('discography');

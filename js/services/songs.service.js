@@ -14,6 +14,7 @@ export const getLatestSong = () => {
 }
 
 export const setSongPlayingFooterIhm = (song) => {
+  document.getElementById('playingFooterProgressBar').style.width = '0%';
   document.getElementById('playingFooterCover').setAttribute('style', `background-image: url('${song.coverSrc}');`);
   document.getElementById('playingFooterSongName').innerHTML = `${song.name}`;
   document.getElementById('playingFooterArtistName').innerHTML = `${song.artist}`;
@@ -35,20 +36,21 @@ export const setSongPlayingSectionIhm = (song) => {
   document.getElementById('playingSectionArtistName').innerHTML = `${song.artist}`;
 }
 
+export const setSongFooterCoverIhm = (song) => {
+  document.getElementById('playingIcon').setAttribute('style', `background-image: url('${song.coverSrc}');`);
+  document.getElementById('playingIcon').innerHTML = `
+    <div class="moving-bars-container mb-container-${song.id} inactive" style="width: 24px; height: 24px;">
+      <div class="pulsor"></div>
+    </div>
+  `;
+}
+
 export const getSongCardIhm = (song, context) => {
   return `
   <div class="song-card">
     <button onclick="onSongCardClick(${song.id}, '${context}')" class="cover" style="background-image: url('${song.coverSrc}')">
       <div class="moving-bars-container mb-container-${song.id} inactive">
-        <div class="animatedLines">
-          <div class="lines"></div>
-          <div class="lines"></div>
-          <div class="lines"></div>
-          <div class="lines"></div>
-          <div class="lines"></div>
-          <div class="lines"></div>
-          <div class="lines"></div>
-        </div>
+        <div class="pulsor"></div>
       </div>
     </button>
     <button onclick="onSongCardClick(${song.id}, '${context}')" class="song-infos">

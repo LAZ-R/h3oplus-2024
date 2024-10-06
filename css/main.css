@@ -183,6 +183,14 @@ html, body {
           justify-content: center;
           width: 100%;
           height: fit-content;
+
+          button {
+            padding: 0 12px;
+          }
+
+          .repeat-inactive { svg { path { fill: var(--color--fg-50); }}}
+          .repeat-active-nuwa { svg { path { fill: var(--color--nuwa); }}}
+          .repeat-active-qargo { svg { path { fill: var(--color--qargo); }}}
         }
 
         .waveform-container {
@@ -224,6 +232,7 @@ html, body {
   }
 
   #playingFooter {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -231,6 +240,7 @@ html, body {
     min-width: 100%; width: 100%; max-width: 100%;
     min-height: var(--height--playing-footer); height: var(--height--playing-footer); max-height: var(--height--playing-footer);
     background-color: var(--color--bg-10);
+    overflow: hidden;
 
     .main-part {
       display: flex;
@@ -308,6 +318,36 @@ html, body {
     min-width: 100%; width: 100%; max-width: 100%;
     min-height: var(--height--footer); height: var(--height--footer); max-height: var(--height--footer);
     background-color: var(--color--bg-0);
+
+    #playingIcon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 24px;
+      height: 24px;
+      background-position: center;
+      background-size: cover;
+      /*border: 1px solid white;*/
+      border-radius: 4px;
+      overflow: hidden;
+
+      transform: scale(1.5);
+
+      &.active {
+        opacity: 1;
+      }
+      &.inactive {
+        opacity: .5;
+      }
+
+      .moving-bars-container {
+        background-color: #0000006c;
+      }
+
+      .pulsor {
+        transform: scale(.4);
+      }
+    }
   }
 }
 
@@ -352,68 +392,6 @@ html, body {
     background-size: cover;
     border-radius: 4px;
     overflow: hidden;
-
-    .moving-bars-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-color: #000000c2;
-      /* opacity: .66; */
-
-      &.active {
-        opacity: 1;
-      }
-      &.inactive {
-        opacity: 0;
-      }
-
-      .animatedLines {
-        box-sizing: border-box;
-        display: flex;
-        width: 100%;
-        height: 100%;
-        justify-content: center;
-        align-items: center;
-      }
-      
-      .animatedLines .lines {
-        box-sizing: border-box;
-        display: flex;
-        width: 3px;
-        height: 7px;
-        margin-right: 4px;
-      }
-      
-      .animatedLines .lines:nth-child(1) {
-        background-color: #ffffff48;
-        animation: animatedBarsSmall .5s .4s infinite alternate;
-      }
-      .animatedLines .lines:nth-child(2) {
-        background-color: #ffffff8e;
-        animation: animatedBarsMedium .5s .3s infinite alternate;
-      }
-      .animatedLines .lines:nth-child(3) {
-        background-color: #ffffffd0;
-        animation: animatedBarsMedium .5s .2s infinite alternate;
-      }
-      .animatedLines .lines:nth-child(4) {
-        background-color: #ffffff;
-        animation: animatedBarsBig .5s .1s infinite alternate;
-      }
-      .animatedLines .lines:nth-child(5) {
-        background-color: #ffffffd0;
-        animation: animatedBarsMedium .5s .2s infinite alternate;
-      }
-      .animatedLines .lines:nth-child(6) {
-        background-color: #ffffff8e;
-        animation: animatedBarsMedium .5s .3s infinite alternate;
-      }
-      .animatedLines .lines:nth-child(7) {
-        background-color: #ffffff48;
-        animation: animatedBarsSmall .5s .4s infinite alternate;
-        margin-right: 0 !important;
-      }
-    }
   }
 
   .song-infos {
@@ -463,4 +441,143 @@ html, body {
   25% { transform: scaleY(2); }
   50% { transform: scaleY(2); }
   100% { transform: scaleY(1); }
+}
+
+@keyframes pulseBg {
+  0%   { background-color: #ffffff00; }
+  50%  { background-color: #ffffff3f; }
+  100% { background-color: #ffffff00; }
+}
+
+
+@keyframes l17 {
+  100% {transform: rotate(1turn)}
+}
+
+.moving-bars-container {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #000000c2;
+  /* opacity: .66; */
+  overflow: hidden;
+
+  &.active {
+    opacity: 1;
+  }
+  &.inactive {
+    opacity: 0;
+  }
+}
+
+.pulsor {
+  width: 12px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffffffc9;
+  box-shadow: 0 0 0 0 #fff4;
+  animation: pulsorAnimation var(--pulse-animation-timing) infinite linear;
+  position: relative;
+
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 0 0 #fff2;
+    animation: inherit;
+    animation-delay: 0;
+  }
+  /* &:before {
+    animation-delay: calc(var(--pulse-animation-timing) / 2);
+  } */
+  &:after {
+    animation-delay: calc(var(--pulse-animation-timing) / 4);
+  }
+}
+
+@keyframes pulsorAnimation {
+  0% {box-shadow: 0 0 0 0 #fff4;}
+  100% {box-shadow: 0 0 0 40px #fff0}
+}
+
+
+
+
+@-webkit-keyframes sk-bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 40% { 
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+  }
+}
+
+.loader-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  animation: pulseBg .9s infinite;
+
+  &.active {
+    display: flex;
+  }
+
+  &.inactive {
+    display: none;
+  }
+
+  .loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 95%;
+    aspect-ratio: 1/1;
+    margin-right: auto;
+    margin-bottom: auto;
+    gap: 8px;
+
+    &.full-page {
+      margin: 0;
+      height: 10svh;
+      margin-top: auto;
+      margin-bottom: 24px;
+    }
+  
+    & > div {
+      width: 12px;
+      height: 12px;
+      background-color: #ffffff79;
+    
+      border-radius: 100%;
+      -webkit-animation: sk-bouncedelay 1s infinite ease-in-out both;
+      animation: sk-bouncedelay 1s infinite ease-in-out both;
+    }
+    
+     .bounce1 {
+      -webkit-animation-delay: -0.33s;
+      animation-delay: -0.33s;
+    }
+    
+     .bounce2 {
+      -webkit-animation-delay: -0.16s;
+      animation-delay: -0.16s;
+    }
+  }
 }
