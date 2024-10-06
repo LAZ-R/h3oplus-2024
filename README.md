@@ -1,1 +1,1 @@
-# h3oplus-2024
+# The H3O+ Project app - 2024 edition
