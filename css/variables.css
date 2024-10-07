@@ -85,8 +85,8 @@
   /* footer height */
   --height--footer--phone:   10svh;
   --height--footer--tablet:  10svh;
-  --height--footer--laptop:  10svh;
-  --height--footer--desktop: 10svh;
+  --height--footer--laptop:  65px;
+  --height--footer--desktop: 65px;
   
   --height--footer: var(--height--footer--phone);
 
@@ -101,8 +101,8 @@
   /* playing-footer height */
   --height--playing-footer--phone:   10svh;
   --height--playing-footer--tablet:  10svh;
-  --height--playing-footer--laptop:  10svh;
-  --height--playing-footer--desktop: 10svh;
+  --height--playing-footer--laptop:  65px;
+  --height--playing-footer--desktop: 65px;
   
   --height--playing-footer: var(--height--playing-footer--phone);
 
@@ -119,9 +119,9 @@
 
   /* --- horizontal padding --- */
   --horizontal-padding--phone:   7svw;
-  --horizontal-padding--tablet:  7svw;
+  --horizontal-padding--tablet:  8svw;
   --horizontal-padding--laptop:  10svw;
-  --horizontal-padding--desktop: 16svw;
+  --horizontal-padding--desktop: 20svw;
   /* --------------------------------------------------------------------- */
   --horizontal-padding : var(--horizontal-padding--phone);
 

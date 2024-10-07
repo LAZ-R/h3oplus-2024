@@ -38,6 +38,10 @@ button {
   border-radius: var(--border-radius--button);
   /* transition: background-color .2s linear, color .2s linear; */
   font-size: 16px;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .app-icon {
@@ -84,6 +88,10 @@ html, body {
   background-color: var(--color--bg-0);
   overflow: hidden;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   /* header {
     
   } */
@@ -102,6 +110,10 @@ html, body {
     padding: 0;
     margin: 0;
 
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
     section {
       position: absolute;
       top: 0;
@@ -117,6 +129,10 @@ html, body {
       overflow-y: scroll;
       padding: 24px var(--horizontal-padding);
       margin: 0;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
 
       &.discography-section {
         display: none;
@@ -159,6 +175,19 @@ html, body {
           background-repeat: no-repeat;
           background-size: cover;
           border-radius: 12px;
+
+          /* Tablet */
+          @media (min-width: 767px) and (max-width: 1279px) { 
+            min-width: 20svh;  width: 20svh; max-width: 20svh;
+          }
+          /* Laptop */
+          @media (min-width: 1280px) and (max-width: 1919px) { 
+           min-width: 250px;  width: 250px; max-width: 250px;
+          }
+          /* Desktop */
+          @media (min-width: 1920px) { 
+            min-width: 250px;  width: 250px; max-width: 250px;
+          }
         }
 
         .song-infos {
@@ -193,12 +222,16 @@ html, body {
             padding: 0 12px;
           }
 
-          .repeat-inactive { svg { path { fill: var(--color--fg-50); }}}
-          .repeat-active-nuwa { svg { path { fill: var(--color--nuwa); }}}
-          .repeat-active-qargo { svg { path { fill: var(--color--qargo); }}}
+          .repeat {
+            padding: 0;
+
+            &.inactive { svg { path { fill: var(--color--fg-50); }}}
+            &.active-nuwa { svg { path { fill: var(--color--nuwa); }}}
+            &.active-qargo { svg { path { fill: var(--color--qargo); }}}
+          }
 
           .is-liked-playing {
-        
+            padding: 0;
             &.inactive { svg { path { fill: var(--color--fg-50); }}}
             &.active-nuwa { svg { path { fill: var(--color--nuwa); }}}
             &.active-qargo { svg { path { fill: var(--color--qargo); }}}
@@ -289,6 +322,29 @@ html, body {
         & > span:last-child {
           font-size: 14px;
           font-weight: 300;
+        }
+
+        /* Laptop */
+        @media (min-width: 1280px) and (max-width: 1919px) { 
+          gap: 4px;
+
+          & > span:first-child {
+            font-size: 14px;
+          }
+          & > span:last-child {
+            font-size: 12px;
+          }
+        }
+        /* Desktop */
+        @media (min-width: 1920px) { 
+          gap: 4px;
+
+          & > span:first-child {
+            font-size: 14px;
+          }
+          & > span:last-child {
+            font-size: 12px;
+          }
         }
       }
 
@@ -432,6 +488,45 @@ html, body {
       /* transform: scale(1.05); */
       background-color: var(--color--bg-20);
     }
+
+    /* Tablet */
+    @media (min-width : 767px) and (max-width : 1279px) { 
+      
+    }
+    /* Laptop */
+    @media (min-width: 1280px) and (max-width: 1919px) { 
+      gap: 4px;
+      /* width: 85%;
+      margin: 0; */
+
+      &:hover {
+        background-color: var(--color--bg-20);
+      }
+
+      & > span:first-child {
+        font-size: 14px;
+      }
+      & > span:last-child {
+        font-size: 12px;
+      }
+    }
+    /* Desktop */
+    @media (min-width: 1920px) { 
+      gap: 4px;
+      width: 87%;
+      margin: 0;
+
+      &:hover {
+        background-color: var(--color--bg-20);
+      }
+
+      & > span:first-child {
+        font-size: 14px;
+      }
+      & > span:last-child {
+        font-size: 12px;
+      }
+    }
   }
 
   .is-liked {
@@ -440,6 +535,15 @@ html, body {
     &.inactive { svg { path { fill: var(--color--fg-50); }}}
     &.active-nuwa { svg { path { fill: var(--color--nuwa); }}}
     &.active-qargo { svg { path { fill: var(--color--qargo); }}}
+
+    /* Laptop */
+    @media (min-width: 1280px) and (max-width: 1919px) { 
+      margin-left: auto;
+    }
+    /* Desktop */
+    @media (min-width: 1920px) { 
+      margin-left: auto;
+    }
   }
   
 }
@@ -563,6 +667,12 @@ html, body {
     height: 95%;
     width: fit-content;
     aspect-ratio: 1/1 !important;
+  }
+
+  &.song-card-loader {
+    .loader {
+      transform: scale(.7);
+    }
   }
 
   &.footer-loader {

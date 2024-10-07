@@ -4,6 +4,7 @@ import { bpmToMillisecondsPerBeat, getRandomIntegerBetween, setHTMLTitle } from 
 import { getSvgIcon } from "./services/icons.service.js";
 import { getAllSongsCardsIhm, getLatestSong, getSongById, getSongCardIhm, setSongPlayingFooterIhm, setSongPlayingSectionIhm, setSongFooterCoverIhm } from "./services/songs.service.js";
 import { nuwa, SONGS } from "./data/songs.data.js";
+import { isLaptop, isPhone, isTablet } from "./utils/breakpoints.js";
 
 /* ########################################################### */
 /* VARIABLES */
@@ -57,7 +58,8 @@ const onSectionButtonClick = (sectionName) => {
 window.onSectionButtonClick = onSectionButtonClick;
 
 const showPlayingFooter = () => {
-  document.documentElement.style.setProperty('--height--playing-footer', `var(--height--playing-footer--phone)`);
+  document.documentElement.style.setProperty('--height--playing-footer', `var(--height--playing-footer--${isPhone ? 'phone' : isTablet ? 'tablet' : isLaptop ? 'laptop' : 'desktop'})`);
+  document.documentElement.style.setProperty('--height--main', `var(--height--main--${isPhone ? 'phone' : isTablet ? 'tablet' : isLaptop ? 'laptop' : 'desktop'})`);
 }
 const hidePlayingFooter = () => {
   document.documentElement.style.setProperty('--height--playing-footer', `0px`);
@@ -315,11 +317,11 @@ const onRepeatClick = () => {
   let button = document.getElementById('repeatButton');
   IS_REPEAT_ACTIVE = !IS_REPEAT_ACTIVE;
   if (IS_REPEAT_ACTIVE) {
-    button.classList.replace('repeat-inactive', CURRENT_PLAYING_SONG.artist == nuwa ? 'repeat-active-nuwa' : 'repeat-active-qargo');
+    button.classList.replace('inactive', CURRENT_PLAYING_SONG.artist == nuwa ? 'active-nuwa' : 'active-qargo');
   } else {
-    button.classList.remove('repeat-active-nuwa');
-    button.classList.remove('repeat-active-qargo');
-    button.classList.add('repeat-inactive');
+    button.classList.remove('active-nuwa');
+    button.classList.remove('active-qargo');
+    button.classList.add('inactive');
   }
 }
 window.onRepeatClick = onRepeatClick;
@@ -327,11 +329,11 @@ window.onRepeatClick = onRepeatClick;
 const refreshRepeatColor = () => {
   if (IS_REPEAT_ACTIVE) {
     if (CURRENT_PLAYING_SONG.artist == nuwa) {
-      document.getElementById('repeatButton').classList.remove('repeat-active-qargo');
-      document.getElementById('repeatButton').classList.add('repeat-active-nuwa');
+      document.getElementById('repeatButton').classList.remove('active-qargo');
+      document.getElementById('repeatButton').classList.add('active-nuwa');
     } else {
-      document.getElementById('repeatButton').classList.remove('repeat-active-nuwa');
-      document.getElementById('repeatButton').classList.add('repeat-active-qargo');
+      document.getElementById('repeatButton').classList.remove('active-nuwa');
+      document.getElementById('repeatButton').classList.add('active-qargo');
     }
   }
 }
@@ -364,7 +366,7 @@ PLAYING_SECTION.innerHTML = `
     <span id="playingSectionArtistName">Artist name</span>
   </div>
   <div class="controls-container">
-  <button id="repeatButton" class="repeat-inactive" onclick="onRepeatClick()" style="margin-right: auto;">
+  <button id="repeatButton" class="repeat inactive" onclick="onRepeatClick()" style="margin-right: auto;">
     ${getSvgIcon('arrows-rotate', 'icon-s icon-fg-0')}
   </button>
   <button onclick="goToPreviousTrack()">
