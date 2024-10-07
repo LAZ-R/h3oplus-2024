@@ -166,9 +166,22 @@ html, body {
         opacity: 0;
         /* background-color: green; */
 
+        /* Tablet */
+        @media (min-width: 767px) and (max-width: 1279px) { 
+          justify-content: space-evenly;
+        }
+        /* Laptop */
+        @media (min-width: 1280px) and (max-width: 1919px) { 
+          justify-content: space-evenly;
+        }
+        /* Desktop */
+        @media (min-width: 1920px) { 
+          justify-content: space-evenly;
+        }
+
         .cover {
           display: flex;
-          width: 100%;
+          width: 100%; max-width: 45svh;
           aspect-ratio: 1/1;
           background-color: cyan;
           background-position: center;
@@ -178,7 +191,7 @@ html, body {
 
           /* Tablet */
           @media (min-width: 767px) and (max-width: 1279px) { 
-            min-width: 20svh;  width: 20svh; max-width: 20svh;
+            min-width: 30svh;  width: 30svh; max-width: 30svh;
           }
           /* Laptop */
           @media (min-width: 1280px) and (max-width: 1919px) { 
@@ -255,6 +268,7 @@ html, body {
           #waveform {
             overflow: hidden;
             height: 10svh;
+            cursor: pointer;
           }
         }
       }

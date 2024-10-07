@@ -2,7 +2,7 @@ import { requestWakeLock } from "./utils/wakelock.js";
 import { APP_NAME, APP_VERSION } from "../app-properties.js";
 import { bpmToMillisecondsPerBeat, getRandomIntegerBetween, setHTMLTitle } from "./utils/UTILS.js";
 import { getSvgIcon } from "./services/icons.service.js";
-import { getAllSongsCardsIhm, getLatestSong, getSongById, getSongCardIhm, setSongPlayingFooterIhm, setSongPlayingSectionIhm, setSongFooterCoverIhm } from "./services/songs.service.js";
+import { getAllSongsCardsIhm, getLatestSong, getSongById, getSongCardIhm, setSongPlayingFooterIhm, setSongPlayingSectionIhm, setSongFooterCoverIhm, isSongLiked, getLikesPlaylist, getLikesCardsIhm } from "./services/songs.service.js";
 import { nuwa, SONGS } from "./data/songs.data.js";
 import { isLaptop, isPhone, isTablet } from "./utils/breakpoints.js";
 import { getUser, setStorage, setUser } from "./services/storage.service..js";
@@ -71,7 +71,7 @@ const hideLoaders = () => {
 
 const turnAnimationsOn = () => {
   let millisecondsPerBeat = bpmToMillisecondsPerBeat(CURRENT_PLAYING_SONG.bpm);
-  console.log(millisecondsPerBeat / 1000);
+  //console.log(millisecondsPerBeat / 1000);
   document.documentElement.style.setProperty('--pulse-animation-timing', `${millisecondsPerBeat / 1000}s`);
   
   let newElements = document.getElementsByClassName(`pulsor`);
@@ -105,7 +105,7 @@ const turnAnimationsOff = () => {
 } 
 
 const refreshTimingRelatedIhm = () => {
-  // PRogress bar -----------------
+  // Progress bar -----------------
   let playingFooterProgressBar = document.getElementById('playingFooterProgressBar');
 
   let totalTime = wavesurfer.getDuration();
@@ -172,7 +172,7 @@ export const getPlaylist = (context) => {
     case 'allSongs':
       return SONGS;
     case 'likes':
-      return SONGS;
+      return LIKES_PLAYLIST;
     default:
       return SONGS;
   }
@@ -242,7 +242,8 @@ const setCurrentPlayingSong = (song) => {
 const setUserCurrentParameters = () => {
   let user = getUser();
 
-  CURRENT_CONTEXT = user.context;
+  CURRENT_CONTEXT = user.currentContext;
+  //console.log(CURRENT_CONTEXT);
   CURRENT_PLAYLIST = getPlaylist(CURRENT_CONTEXT);
   CURRENT_PLAYING_SONG = getSongById(user.lastPlayedSongId);
   IS_REPEAT_ACTIVE = user.isRepeatActive;
@@ -301,6 +302,13 @@ const onPlayPauseButtonClick = () => {
 window.onPlayPauseButtonClick = onPlayPauseButtonClick;
 
 export const onSongCardClick = (songId, context) => {
+  CURRENT_PLAYLIST = getPlaylist(context);
+  //console.log(CURRENT_CONTEXT);
+  //console.log(CURRENT_PLAYLIST);
+  CURRENT_CONTEXT = context;
+  let user = getUser();
+  user.currentContext = CURRENT_CONTEXT;
+  setUser(user);
   if (songId == CURRENT_PLAYING_SONG.id) {
     if (isCurrentlyPlaying) {
       onSectionButtonClick('playing')
@@ -312,7 +320,6 @@ export const onSongCardClick = (songId, context) => {
     wavesurfer.pause();
   }
   if (CURRENT_PLAYING_SONG == null || CURRENT_PLAYING_SONG.id !== songId) {
-    CURRENT_PLAYLIST = getPlaylist(context);
     const song = getSongById(songId);
     setCurrentPlayingSong(CURRENT_PLAYLIST[CURRENT_PLAYLIST.indexOf(song)]);
     //console.table(CURRENT_PLAYING_SONG);
@@ -383,13 +390,65 @@ const onRepeatClick = () => {
 }
 window.onRepeatClick = onRepeatClick;
 
+const onLikeButtonClick = (songId = CURRENT_PLAYING_SONG.id) => {
+  //console.log(songId);
+  let song = getSongById(songId);
+  let songCardsButtons = document.getElementsByClassName(`like-${songId}`);
+  //console.log(songCardsButtons);
+  if (isSongLiked(songId)) {
+    // Handle dislike
+    for (let button of songCardsButtons) {
+      button.classList.remove(song.artist == nuwa ? 'active-nuwa' : 'active-qargo');
+      button.classList.add('inactive');
+      button.innerHTML = `${getSvgIcon('heart-empty', 'icon-s')}`;
+    }
+    if (CURRENT_PLAYING_SONG.id == songId) {
+      document.getElementById('playingSectionLikeButton').classList.add('inactive');
+      document.getElementById('playingSectionLikeButton').classList.remove('active-nuwa');
+      document.getElementById('playingSectionLikeButton').classList.remove('active-qargo');
+      document.getElementById('playingSectionLikeButton').innerHTML = `
+        ${getSvgIcon('heart-empty', 'icon-s')}
+      `;
+    }
+    
+    let user = getUser();
+    let index = user.favorits.indexOf(songId);
+    user.favorits.splice(index, 1);
+    setUser(user);
+  } else {
+    // Handle like
+    for (let button of songCardsButtons) {
+      button.classList.remove('inactive');
+      button.classList.add(song.artist == nuwa ? 'active-nuwa' : 'active-qargo');
+      button.innerHTML = `${getSvgIcon('heart', 'icon-s')}`;
+    }
+    if (CURRENT_PLAYING_SONG.id == songId) {
+      document.getElementById('playingSectionLikeButton').classList.remove('inactive');
+      document.getElementById('playingSectionLikeButton').classList.add(song.artist == nuwa ? 'active-nuwa' : 'active-qargo');
+      document.getElementById('playingSectionLikeButton').innerHTML = `
+        ${getSvgIcon('heart', 'icon-s')}
+      `;
+    }
+    let user = getUser();
+    user.favorits.push(songId);
+    setUser(user);
+  }
+  LIKES_PLAYLIST = getLikesPlaylist().reverse();
+  LIKES_SECTION.innerHTML = `
+  <h1>Likes</h1>
+  ${getLikesCardsIhm(LIKES_PLAYLIST)}
+  `;
+}
+window.onLikeButtonClick = onLikeButtonClick;
 /* ########################################################### */
 /* DOM INITIALIZATION */
 /* ########################################################### */
-
+// Keep screen awake
+requestWakeLock();
+setStorage();
+let LIKES_PLAYLIST = getLikesPlaylist().reverse();
 setHTMLTitle(APP_NAME);
 
-//HEADER.innerHTML = `<span>${APP_NAME}</span>`;
 DISCOGRAPHY_SECTION.innerHTML = `
   <div class="main-logo"></div>
   <!-- <span class="logo-text">THE H<sup>3</sup>O<sub>+</sub> PROJECT</span> -->
@@ -423,7 +482,7 @@ PLAYING_SECTION.innerHTML = `
   <button onclick="goToNextTrack()">
     ${getSvgIcon('forward-step', 'icon-s icon-fg-0')}
   </button>
-  <button onclick="" style="margin-left: auto;" class="is-liked-playing inactive">
+  <button id="playingSectionLikeButton" onclick="onLikeButtonClick()" style="margin-left: auto;" class="is-liked-playing inactive">
     ${getSvgIcon('heart-empty', 'icon-s icon-fg-0')}
   </button>
   </div>
@@ -442,6 +501,11 @@ PLAYING_SECTION.innerHTML = `
       <div class="bounce3"></div>
     </div>
   </div>
+`;
+
+LIKES_SECTION.innerHTML = `
+  <h1>Likes</h1>
+  ${getLikesCardsIhm(LIKES_PLAYLIST)}
 `;
 
 PLAYING_FOOTER.innerHTML = `
@@ -481,10 +545,6 @@ FOOTER.innerHTML = `
 /* ########################################################### */
 /* EXECUTION */
 /* ########################################################### */
-
-// Keep screen awake
-requestWakeLock();
-setStorage();
 
 let isCurrentlyPlaying = false;
 

@@ -12,7 +12,7 @@ export const setStorage = () => {
       lastPlayedSongId: 14,
       lastPlayedSongElapsedTime: 0,
       isRepeatActive: false,
-      favorits: [],
+      favorits: [1, 2],
     };
     STORAGE.setItem(`${appLocalStorageId}User`, JSON.stringify(userTMP));
   }

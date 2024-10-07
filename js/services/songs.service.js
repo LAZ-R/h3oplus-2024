@@ -1,12 +1,20 @@
 import { nuwa, qargo, SONGS } from "../data/songs.data.js";
 import { getSvgIcon } from "./icons.service.js";
-
-
+import { getUser } from "./storage.service..js";
 
 export const getSongById = (songId) => {
   const song = SONGS.filter((song) => song.id == Number(songId))[0];
   //console.log(song);
   return song;
+}
+
+export const getLikesPlaylist = () => {
+  let playlist = [];
+  let user = getUser();
+  for (let likesSongId of user.favorits) {
+    playlist.push(getSongById(likesSongId));
+  }
+  return playlist;
 }
  
 export const getLatestSong = () => {
@@ -34,6 +42,24 @@ export const setSongPlayingSectionIhm = (song) => {
   document.getElementById('playingSectionCover').setAttribute('style', `background-image: url('${song.coverSrc}');`);
   document.getElementById('playingSectionSongName').innerHTML = `${song.name}`;
   document.getElementById('playingSectionArtistName').innerHTML = `${song.artist}`;
+
+  if (isSongLiked(song.id)) {
+    document.getElementById('playingSectionLikeButton').classList.remove('inactive');
+    document.getElementById('playingSectionLikeButton').classList.remove('active-nuwa');
+    document.getElementById('playingSectionLikeButton').classList.remove('active-qargo');
+    document.getElementById('playingSectionLikeButton').classList.add(song.artist == nuwa ? 'active-nuwa' : 'active-qargo');
+    document.getElementById('playingSectionLikeButton').innerHTML = `
+      ${getSvgIcon('heart', 'icon-s')}
+    `;
+
+  } else {
+    document.getElementById('playingSectionLikeButton').classList.add('inactive');
+    document.getElementById('playingSectionLikeButton').classList.remove('active-nuwa');
+    document.getElementById('playingSectionLikeButton').classList.remove('active-qargo');
+    document.getElementById('playingSectionLikeButton').innerHTML = `
+      ${getSvgIcon('heart-empty', 'icon-s')}
+    `;
+  }
 }
 
 export const setSongFooterCoverIhm = (song) => {
@@ -52,9 +78,21 @@ export const setSongFooterCoverIhm = (song) => {
   `;
 }
 
+export const isSongLiked = (songId) => {
+  let isLiked = false;
+  let user = getUser();
+  for (let favorit of user.favorits) {
+    if (favorit == songId) {
+      isLiked = true;
+    }
+  }
+  return isLiked;
+}
+
 export const getSongCardIhm = (song, context) => {
+  ;
   return `
-  <div class="song-card">
+  <div class="song-card context-${context}">
     <button onclick="onSongCardClick(${song.id}, '${context}')" class="cover" style="background-image: url('${song.coverSrc}')">
       <div class="moving-bars-container mb-container-${song.id} inactive">
         <div class="pulsor"></div>
@@ -71,8 +109,8 @@ export const getSongCardIhm = (song, context) => {
       <span>${song.name}</span>
       <span>${song.artist}</span>
     </button>
-    <button class="is-liked inactive">
-      ${getSvgIcon('heart-empty', 'icon-s icon-fg-0')}
+    <button onclick="onLikeButtonClick(${song.id})" class="is-liked like-${song.id} ${!isSongLiked(song.id) ? 'inactive' : song.artist == nuwa ? 'active-nuwa' : 'active-qargo' }">
+      ${getSvgIcon(isSongLiked(song.id) ? 'heart' : 'heart-empty', 'icon-s')}
     </button>
   </div>
   `;
@@ -85,6 +123,15 @@ export const getAllSongsCardsIhm = () => {
     str += `${getSongCardIhm(song, 'allSongs')}`;
   }
   
+  str += '</div>'
+  return str;
+}
+
+export const getLikesCardsIhm = (likesPlaylist) => {
+  let str = '<div class="songs-list-container">';
+  for (let song of likesPlaylist) {
+    str += `${getSongCardIhm(song, 'likes')}`;
+  }
   str += '</div>'
   return str;
 }
