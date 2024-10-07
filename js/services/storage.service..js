@@ -9,8 +9,8 @@ export const setStorage = () => {
     
     let userTMP = {
       currentContext: 'allSongs',
-      lastPlayedSongId: 1,
-      lastPlayedSongElapsedTime: 66,
+      lastPlayedSongId: 14,
+      lastPlayedSongElapsedTime: 0,
       isRepeatActive: false,
       favorits: [],
     };

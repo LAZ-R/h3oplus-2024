@@ -24,6 +24,11 @@ const qargoColor = getComputedStyle(document.documentElement).getPropertyValue('
 /* ########################################################### */
 /* FUNCTIONS */
 /* ########################################################### */
+
+/* ----------------------------------------------------------- */
+/* IHM */
+/* ----------------------------------------------------------- */
+
 const showSection = (sectionName) => {
   document.getElementById(`${sectionName}Icon`).classList.replace('inactive', 'active');
   document.getElementById(`${sectionName}Section`).classList.replace('inactive', 'active');
@@ -32,31 +37,6 @@ const hideSection = (sectionName) => {
   document.getElementById(`${sectionName}Icon`).classList.replace('active', 'inactive');
   document.getElementById(`${sectionName}Section`).classList.replace('active', 'inactive'); 
 }
-const onSectionButtonClick = (sectionName) => {
-  switch (sectionName) {
-    case 'discography':
-      showSection('discography');
-      hideSection('playing');
-      hideSection('likes');
-      showPlayingFooter();
-      break;
-    case 'playing':
-      hideSection('discography');
-      showSection('playing');
-      hideSection('likes');
-      hidePlayingFooter();
-      break;
-    case 'likes':
-      hideSection('discography');
-      hideSection('playing');
-      showSection('likes');
-      showPlayingFooter();
-      break;
-    default:
-      break;
-  }
-}
-window.onSectionButtonClick = onSectionButtonClick;
 
 const showPlayingFooter = () => {
   document.documentElement.style.setProperty('--height--playing-footer', `var(--height--playing-footer--${isPhone ? 'phone' : isTablet ? 'tablet' : isLaptop ? 'laptop' : 'desktop'})`);
@@ -66,41 +46,63 @@ const hidePlayingFooter = () => {
   document.documentElement.style.setProperty('--height--playing-footer', `0px`);
 }
 
-const onPlayPauseButtonClick = () => {
-  let playingFooterPlayPauseButton = document.getElementById('playingFooterPlayPauseButton');
-  let playingSectionPlayPauseButton = document.getElementById('playingSectionPlayPauseButton');
-  isCurrentlyPlaying = !isCurrentlyPlaying;
-  if (isCurrentlyPlaying) {
-    if (wavesurfer.getCurrentTime() != 0) {
-      wavesurfer.play();
-      turnAnimationsOn();
-      playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-s icon-fg-0')}`;
-      playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
-    } else {
-      playCurrentSong();
+const showLoaders = () => {
+  let elements = document.getElementsByClassName('loader-container');
+  if (elements.length != 0) {
+    for (let element of elements) {
+      if (element.classList.contains('song-card-loader')) {
+        if (element.classList.contains(`song-${CURRENT_PLAYING_SONG.id}`)) {
+          element.classList.replace('inactive', 'active');
+        }
+      } else {
+        element.classList.replace('inactive', 'active');
+      }
     }
-  } else {
-    wavesurfer.pause();
-    turnAnimationsOff();
-    playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('play', 'icon-s icon-fg-0')}`;
-    playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('play', 'icon-m icon-fg-0')}`;
   }
 }
-window.onPlayPauseButtonClick = onPlayPauseButtonClick;
+const hideLoaders = () => {
+  let elements = document.getElementsByClassName('loader-container');
+  if (elements.length != 0) {
+    for (let element of elements) {
+      element.classList.replace('active', 'inactive')
+    }
+  }
+}
 
-export const getPlaylist = (context) => {
-  CURRENT_CONTEXT = context;
-  switch (context) {
-    case 'latest':
-      return SONGS;
-    case 'allSongs':
-      return SONGS;
-    case 'likes':
-      return SONGS;
-    default:
-      return SONGS;
+const turnAnimationsOn = () => {
+  let millisecondsPerBeat = bpmToMillisecondsPerBeat(CURRENT_PLAYING_SONG.bpm);
+  console.log(millisecondsPerBeat / 1000);
+  document.documentElement.style.setProperty('--pulse-animation-timing', `${millisecondsPerBeat / 1000}s`);
+  
+  let newElements = document.getElementsByClassName(`pulsor`);
+  if (newElements.length != 0) {
+    for (let element of newElements) {
+      element.style.animation = 'pulsorAnimation var(--pulse-animation-timing) infinite linear';
+    }
+  }
+
+  let newElements2 = document.getElementsByClassName(`mb-container-${CURRENT_PLAYING_SONG.id}`);
+  if (newElements2.length != 0) {
+    for (let element of newElements2) {
+      element.classList.replace('inactive', 'active');
+    }
   }
 }
+const turnAnimationsOff = () => {
+  let pulsorElements = document.getElementsByClassName(`pulsor`);
+  if (pulsorElements.length != 0) {
+    for (let element of pulsorElements) {
+      element.style.animation = 'none';
+    }
+  }
+  
+  let oldElements = document.getElementsByClassName(`moving-bars-container`);
+  if (oldElements.length != 0) {
+    for (let element of oldElements) {
+      element.classList.replace('active', 'inactive');
+    }
+  } 
+} 
 
 const refreshTimingRelatedIhm = () => {
   // PRogress bar -----------------
@@ -140,27 +142,39 @@ const refreshTimingRelatedIhm = () => {
 
 }
 
-const showLoaders = () => {
-  let elements = document.getElementsByClassName('loader-container');
-  if (elements.length != 0) {
-    for (let element of elements) {
-      if (element.classList.contains('song-card-loader')) {
-        if (element.classList.contains(`song-${CURRENT_PLAYING_SONG.id}`)) {
-          element.classList.replace('inactive', 'active');
-        }
-      } else {
-        element.classList.replace('inactive', 'active');
-      }
+const refreshRepeatColor = () => {
+  if (IS_REPEAT_ACTIVE) {
+    if (CURRENT_PLAYING_SONG.artist == nuwa) {
+      document.getElementById('repeatButton').classList.remove('inactive');
+      document.getElementById('repeatButton').classList.remove('active-qargo');
+      document.getElementById('repeatButton').classList.add('active-nuwa');
+    } else {
+      document.getElementById('repeatButton').classList.remove('inactive');
+      document.getElementById('repeatButton').classList.remove('active-nuwa');
+      document.getElementById('repeatButton').classList.add('active-qargo');
     }
+  } else {
+    document.getElementById('repeatButton').classList.add('inactive');
+      document.getElementById('repeatButton').classList.remove('active-qargo');
+      document.getElementById('repeatButton').classList.remove('active-nuwa');
   }
 }
 
-const hideLoaders = () => {
-  let elements = document.getElementsByClassName('loader-container');
-  if (elements.length != 0) {
-    for (let element of elements) {
-      element.classList.replace('active', 'inactive')
-    }
+/* ----------------------------------------------------------- */
+/* SONGS */
+/* ----------------------------------------------------------- */
+
+export const getPlaylist = (context) => {
+  CURRENT_CONTEXT = context;
+  switch (context) {
+    case 'latest':
+      return SONGS;
+    case 'allSongs':
+      return SONGS;
+    case 'likes':
+      return SONGS;
+    default:
+      return SONGS;
   }
 }
 
@@ -218,69 +232,74 @@ const playCurrentSong = () => {
   });
 }
 
-const turnAnimationsOff = () => {
-  let pulsorElements = document.getElementsByClassName(`pulsor`);
-  if (pulsorElements.length != 0) {
-    for (let element of pulsorElements) {
-      element.style.animation = 'none';
-    }
-  }
-  
-  let oldElements = document.getElementsByClassName(`moving-bars-container`);
-  if (oldElements.length != 0) {
-    for (let element of oldElements) {
-      element.classList.replace('active', 'inactive');
-    }
-  } 
-} 
-
-const turnAnimationsOn = () => {
-  let millisecondsPerBeat = bpmToMillisecondsPerBeat(CURRENT_PLAYING_SONG.bpm);
-  console.log(millisecondsPerBeat / 1000);
-  document.documentElement.style.setProperty('--pulse-animation-timing', `${millisecondsPerBeat / 1000}s`);
-  
-  let newElements = document.getElementsByClassName(`pulsor`);
-  if (newElements.length != 0) {
-    for (let element of newElements) {
-      element.style.animation = 'pulsorAnimation var(--pulse-animation-timing) infinite linear';
-    }
-  }
-
-  let newElements2 = document.getElementsByClassName(`mb-container-${CURRENT_PLAYING_SONG.id}`);
-  if (newElements2.length != 0) {
-    for (let element of newElements2) {
-      element.classList.replace('inactive', 'active');
-    }
-  }
-}
-
-const refreshRepeatColor = () => {
-  if (IS_REPEAT_ACTIVE) {
-    if (CURRENT_PLAYING_SONG.artist == nuwa) {
-      document.getElementById('repeatButton').classList.remove('inactive');
-      document.getElementById('repeatButton').classList.remove('active-qargo');
-      document.getElementById('repeatButton').classList.add('active-nuwa');
-    } else {
-      document.getElementById('repeatButton').classList.remove('inactive');
-      document.getElementById('repeatButton').classList.remove('active-nuwa');
-      document.getElementById('repeatButton').classList.add('active-qargo');
-    }
-  } else {
-    document.getElementById('repeatButton').classList.add('inactive');
-      document.getElementById('repeatButton').classList.remove('active-qargo');
-      document.getElementById('repeatButton').classList.remove('active-nuwa');
-  }
-}
-/* ########################################################### */
-/* USER INTERACTIONS */
-/* ########################################################### */
-
 const setCurrentPlayingSong = (song) => {
   CURRENT_PLAYING_SONG = song;
   let user = getUser();
   user.lastPlayedSongId = song.id;
   setUser(user);
 }
+
+const setUserCurrentParameters = () => {
+  let user = getUser();
+
+  CURRENT_CONTEXT = user.context;
+  CURRENT_PLAYLIST = getPlaylist(CURRENT_CONTEXT);
+  CURRENT_PLAYING_SONG = getSongById(user.lastPlayedSongId);
+  IS_REPEAT_ACTIVE = user.isRepeatActive;
+}
+
+/* ########################################################### */
+/* USER INTERACTIONS */
+/* ########################################################### */
+
+const onSectionButtonClick = (sectionName) => {
+  switch (sectionName) {
+    case 'discography':
+      showSection('discography');
+      hideSection('playing');
+      hideSection('likes');
+      showPlayingFooter();
+      break;
+    case 'playing':
+      hideSection('discography');
+      showSection('playing');
+      hideSection('likes');
+      hidePlayingFooter();
+      break;
+    case 'likes':
+      hideSection('discography');
+      hideSection('playing');
+      showSection('likes');
+      showPlayingFooter();
+      break;
+    default:
+      break;
+  }
+}
+window.onSectionButtonClick = onSectionButtonClick;
+
+const onPlayPauseButtonClick = () => {
+  let playingFooterPlayPauseButton = document.getElementById('playingFooterPlayPauseButton');
+  let playingSectionPlayPauseButton = document.getElementById('playingSectionPlayPauseButton');
+  isCurrentlyPlaying = !isCurrentlyPlaying;
+  if (isCurrentlyPlaying) {
+    if (wavesurfer.getCurrentTime() != 0) {
+      wavesurfer.play();
+      turnAnimationsOn();
+      playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-s icon-fg-0')}`;
+      playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
+    } else {
+      playCurrentSong();
+    }
+  } else {
+    wavesurfer.pause();
+    turnAnimationsOff();
+    playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('play', 'icon-s icon-fg-0')}`;
+    playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('play', 'icon-m icon-fg-0')}`;
+  }
+}
+window.onPlayPauseButtonClick = onPlayPauseButtonClick;
+
 export const onSongCardClick = (songId, context) => {
   if (songId == CURRENT_PLAYING_SONG.id) {
     if (isCurrentlyPlaying) {
@@ -459,28 +478,15 @@ FOOTER.innerHTML = `
   </button>
 `;
 
-const setUserCurrentParameters = () => {
-  let user = getUser();
-
-  CURRENT_CONTEXT = user.context;
-  CURRENT_PLAYLIST = getPlaylist(CURRENT_CONTEXT);
-  CURRENT_PLAYING_SONG = getSongById(user.lastPlayedSongId);
-  IS_REPEAT_ACTIVE = user.isRepeatActive;
-}
-
-
 /* ########################################################### */
 /* EXECUTION */
 /* ########################################################### */
 
+// Keep screen awake
+requestWakeLock();
 setStorage();
 
 let isCurrentlyPlaying = false;
-
-// Keep screen awake
-requestWakeLock();
-
-//hidePlayingFooter();
 
 let wavesurfer = WaveSurfer.create({
   container: '#waveform',
