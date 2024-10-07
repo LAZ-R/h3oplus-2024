@@ -5,6 +5,7 @@ import { getSvgIcon } from "./services/icons.service.js";
 import { getAllSongsCardsIhm, getLatestSong, getSongById, getSongCardIhm, setSongPlayingFooterIhm, setSongPlayingSectionIhm, setSongFooterCoverIhm } from "./services/songs.service.js";
 import { nuwa, SONGS } from "./data/songs.data.js";
 import { isLaptop, isPhone, isTablet } from "./utils/breakpoints.js";
+import { getUser, setStorage, setUser } from "./services/storage.service..js";
 
 /* ########################################################### */
 /* VARIABLES */
@@ -101,30 +102,6 @@ export const getPlaylist = (context) => {
   }
 }
 
-export const onSongCardClick = (songId, context) => {
-  if (songId == CURRENT_PLAYING_SONG.id) {
-    if (isCurrentlyPlaying) {
-      onSectionButtonClick('playing')
-    } else {
-      playCurrentSong(); // TODO à revoir, parce que du coup ça relance
-    }
-  }
-  if (isCurrentlyPlaying && CURRENT_PLAYING_SONG.id !== songId) {
-    wavesurfer.pause();
-  }
-  if (CURRENT_PLAYING_SONG == null || CURRENT_PLAYING_SONG.id !== songId) {
-    CURRENT_PLAYLIST = getPlaylist(context);
-    const song = getSongById(songId);
-    CURRENT_PLAYING_SONG = CURRENT_PLAYLIST[CURRENT_PLAYLIST.indexOf(song)];
-    //console.table(CURRENT_PLAYING_SONG);
-
-    showPlayingFooter();
-    playCurrentSong();
-    //onSectionButtonClick('playing');
-  }
-}
-window.onSongCardClick = onSongCardClick;
-
 const refreshTimingRelatedIhm = () => {
   // PRogress bar -----------------
   let playingFooterProgressBar = document.getElementById('playingFooterProgressBar');
@@ -136,6 +113,10 @@ const refreshTimingRelatedIhm = () => {
   if (isCurrentlyPlaying) {
     playingFooterProgressBar.style.width = `${percentage}%`;
     playingFooterProgressBar.style.backgroundColor = CURRENT_PLAYING_SONG.artist == nuwa ? nuwaColor : qargoColor;
+
+    let user = getUser();
+    user.lastPlayedSongElapsedTime = elapsedTime;
+    setUser(user);
   } else {
     playingFooterProgressBar.style.width = `${percentage}%`;
     playingFooterProgressBar.style.backgroundColor = 'var(--color--bg-50)';
@@ -218,8 +199,14 @@ const playCurrentSong = () => {
       document.getElementById('playingSectionPlayPauseButton').innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
       turnAnimationsOn();
       hideLoaders();
-      setInterval(refreshTimingRelatedIhm, 100);
-      wavesurfer.play();
+      if (isFirstPlay) {
+        isFirstPlay = false;
+        wavesurfer.setTime(getUser().lastPlayedSongElapsedTime);
+        wavesurfer.play();
+        onPlayPauseButtonClick();
+      } else {
+        wavesurfer.play();
+      }
   });
 
   wavesurfer.on('finish', function () {
@@ -244,8 +231,9 @@ const turnAnimationsOff = () => {
     for (let element of oldElements) {
       element.classList.replace('active', 'inactive');
     }
-  }
-}
+  } 
+} 
+
 const turnAnimationsOn = () => {
   let millisecondsPerBeat = bpmToMillisecondsPerBeat(CURRENT_PLAYING_SONG.bpm);
   console.log(millisecondsPerBeat / 1000);
@@ -266,6 +254,57 @@ const turnAnimationsOn = () => {
   }
 }
 
+const refreshRepeatColor = () => {
+  if (IS_REPEAT_ACTIVE) {
+    if (CURRENT_PLAYING_SONG.artist == nuwa) {
+      document.getElementById('repeatButton').classList.remove('inactive');
+      document.getElementById('repeatButton').classList.remove('active-qargo');
+      document.getElementById('repeatButton').classList.add('active-nuwa');
+    } else {
+      document.getElementById('repeatButton').classList.remove('inactive');
+      document.getElementById('repeatButton').classList.remove('active-nuwa');
+      document.getElementById('repeatButton').classList.add('active-qargo');
+    }
+  } else {
+    document.getElementById('repeatButton').classList.add('inactive');
+      document.getElementById('repeatButton').classList.remove('active-qargo');
+      document.getElementById('repeatButton').classList.remove('active-nuwa');
+  }
+}
+/* ########################################################### */
+/* USER INTERACTIONS */
+/* ########################################################### */
+
+const setCurrentPlayingSong = (song) => {
+  CURRENT_PLAYING_SONG = song;
+  let user = getUser();
+  user.lastPlayedSongId = song.id;
+  setUser(user);
+}
+export const onSongCardClick = (songId, context) => {
+  if (songId == CURRENT_PLAYING_SONG.id) {
+    if (isCurrentlyPlaying) {
+      onSectionButtonClick('playing')
+    } else {
+      playCurrentSong(); // TODO à revoir, parce que du coup ça relance
+    }
+  }
+  if (isCurrentlyPlaying && CURRENT_PLAYING_SONG.id !== songId) {
+    wavesurfer.pause();
+  }
+  if (CURRENT_PLAYING_SONG == null || CURRENT_PLAYING_SONG.id !== songId) {
+    CURRENT_PLAYLIST = getPlaylist(context);
+    const song = getSongById(songId);
+    setCurrentPlayingSong(CURRENT_PLAYLIST[CURRENT_PLAYLIST.indexOf(song)]);
+    //console.table(CURRENT_PLAYING_SONG);
+
+    showPlayingFooter();
+    playCurrentSong();
+    //onSectionButtonClick('playing');
+  }
+}
+window.onSongCardClick = onSongCardClick;
+
 const goToNextTrack = () => {
   let currentIndex = CURRENT_PLAYLIST.indexOf(CURRENT_PLAYING_SONG);
   let newIndex = 0;
@@ -274,8 +313,7 @@ const goToNextTrack = () => {
   } else {
     newIndex = currentIndex + 1;
   }
-
-  CURRENT_PLAYING_SONG = CURRENT_PLAYLIST[newIndex];
+  setCurrentPlayingSong(CURRENT_PLAYLIST[newIndex]);
 
   playCurrentSong();
 }
@@ -289,8 +327,7 @@ const goToPreviousTrack = () => {
   } else {
     newIndex = currentIndex - 1;
   }
-
-  CURRENT_PLAYING_SONG = CURRENT_PLAYLIST[newIndex];
+  setCurrentPlayingSong(CURRENT_PLAYLIST[newIndex]);
 
   playCurrentSong();
 }
@@ -317,7 +354,8 @@ const onRepeatClick = () => {
   let button = document.getElementById('repeatButton');
   IS_REPEAT_ACTIVE = !IS_REPEAT_ACTIVE;
   if (IS_REPEAT_ACTIVE) {
-    button.classList.replace('inactive', CURRENT_PLAYING_SONG.artist == nuwa ? 'active-nuwa' : 'active-qargo');
+    button.classList.remove('inactive');
+    button.classList.add(CURRENT_PLAYING_SONG.artist == nuwa ? 'active-nuwa' : 'active-qargo');
   } else {
     button.classList.remove('active-nuwa');
     button.classList.remove('active-qargo');
@@ -325,18 +363,6 @@ const onRepeatClick = () => {
   }
 }
 window.onRepeatClick = onRepeatClick;
-
-const refreshRepeatColor = () => {
-  if (IS_REPEAT_ACTIVE) {
-    if (CURRENT_PLAYING_SONG.artist == nuwa) {
-      document.getElementById('repeatButton').classList.remove('active-qargo');
-      document.getElementById('repeatButton').classList.add('active-nuwa');
-    } else {
-      document.getElementById('repeatButton').classList.remove('active-nuwa');
-      document.getElementById('repeatButton').classList.add('active-qargo');
-    }
-  }
-}
 
 /* ########################################################### */
 /* DOM INITIALIZATION */
@@ -433,10 +459,21 @@ FOOTER.innerHTML = `
   </button>
 `;
 
+const setUserCurrentParameters = () => {
+  let user = getUser();
+
+  CURRENT_CONTEXT = user.context;
+  CURRENT_PLAYLIST = getPlaylist(CURRENT_CONTEXT);
+  CURRENT_PLAYING_SONG = getSongById(user.lastPlayedSongId);
+  IS_REPEAT_ACTIVE = user.isRepeatActive;
+}
+
 
 /* ########################################################### */
 /* EXECUTION */
 /* ########################################################### */
+
+setStorage();
 
 let isCurrentlyPlaying = false;
 
@@ -456,8 +493,11 @@ let CURRENT_CONTEXT = 'allSongs';
 let CURRENT_PLAYLIST = SONGS;
 let CURRENT_PLAYING_SONG = getLatestSong();
 let IS_REPEAT_ACTIVE = false;
+let isFirstPlay = true;
 
-setSongPlayingFooterIhm(CURRENT_PLAYING_SONG);
-setSongPlayingSectionIhm(CURRENT_PLAYING_SONG);
-setSongFooterCoverIhm(CURRENT_PLAYING_SONG);
 showSection('discography');
+setUserCurrentParameters();
+refreshRepeatColor();
+setInterval(refreshTimingRelatedIhm, 100);
+
+playCurrentSong();
