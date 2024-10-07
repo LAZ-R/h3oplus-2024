@@ -22,7 +22,7 @@ h1 {
 }
 
 h2 {
-  color: var(--color--fg-60);
+  color: var(--color--fg-50);
   margin-bottom: 16px;
 }
 
@@ -141,8 +141,8 @@ html, body {
 
         .main-logo {
           display: flex;
-          min-width: 7svh;
-          min-height: 7svh;
+          min-width: 8.5svh;
+          min-height: 8.5svh;
           background-image: url('../medias/images/logo-h3oplus.svg');
           background-position: center;
           background-size: cover;
@@ -336,6 +336,7 @@ html, body {
         & > span:last-child {
           font-size: 14px;
           font-weight: 300;
+          color: var(--color--fg-30);
         }
 
         /* Laptop */
@@ -496,6 +497,7 @@ html, body {
     & > span:last-child {
       font-size: 14px;
       font-weight: 300;
+      color: var(--color--fg-30);
     }
 
     &:active {

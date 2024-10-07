@@ -129,8 +129,12 @@ export const getAllSongsCardsIhm = () => {
 
 export const getLikesCardsIhm = (likesPlaylist) => {
   let str = '<div class="songs-list-container">';
-  for (let song of likesPlaylist) {
-    str += `${getSongCardIhm(song, 'likes')}`;
+  if (likesPlaylist.length != 0) {
+    for (let song of likesPlaylist) {
+      str += `${getSongCardIhm(song, 'likes')}`;
+    }
+  } else {
+    str += `<span style="margin: 0 auto; color: var(--color--fg-30);">Vous n'avez aucun favoris</span>`;
   }
   str += '</div>'
   return str;

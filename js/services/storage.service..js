@@ -1,4 +1,5 @@
 import { APP_LOCAL_STORAGE_ID } from "../../app-properties.js";
+import { getLatestSong } from "./songs.service.js";
 
 const STORAGE = localStorage;
 const appLocalStorageId = APP_LOCAL_STORAGE_ID;
@@ -9,10 +10,10 @@ export const setStorage = () => {
     
     let userTMP = {
       currentContext: 'allSongs',
-      lastPlayedSongId: 14,
+      lastPlayedSongId: getLatestSong().id,
       lastPlayedSongElapsedTime: 0,
       isRepeatActive: false,
-      favorits: [1, 2],
+      favorits: [],
     };
     STORAGE.setItem(`${appLocalStorageId}User`, JSON.stringify(userTMP));
   }

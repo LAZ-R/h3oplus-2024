@@ -435,7 +435,7 @@ const onLikeButtonClick = (songId = CURRENT_PLAYING_SONG.id) => {
   }
   LIKES_PLAYLIST = getLikesPlaylist().reverse();
   LIKES_SECTION.innerHTML = `
-  <h1>Likes</h1>
+  <h1>Favoris</h1>
   ${getLikesCardsIhm(LIKES_PLAYLIST)}
   `;
 }
@@ -452,14 +452,13 @@ setHTMLTitle(APP_NAME);
 DISCOGRAPHY_SECTION.innerHTML = `
   <div class="main-logo"></div>
   <!-- <span class="logo-text">THE H<sup>3</sup>O<sub>+</sub> PROJECT</span> -->
-  <h1>DISCOGRAPHIE</h1>
-  <h2>Dernier titre</h2>
+  <!-- <h1>Discographie</h1> -->
+  <h1>Dernier titre</h1>
   <div class="songs-list-container">
     ${getSongCardIhm(getLatestSong(), 'latest')}
   </div>
   <br>
-  <br>
-  <h2>Tous les titres</h2>
+  <h1>Tous les titres</h1>
   ${getAllSongsCardsIhm()}
 `;
 
@@ -504,7 +503,7 @@ PLAYING_SECTION.innerHTML = `
 `;
 
 LIKES_SECTION.innerHTML = `
-  <h1>Likes</h1>
+  <h1>Favoris</h1>
   ${getLikesCardsIhm(LIKES_PLAYLIST)}
 `;
 
