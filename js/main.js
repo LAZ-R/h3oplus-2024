@@ -444,7 +444,7 @@ window.onLikeButtonClick = onLikeButtonClick;
 /* DOM INITIALIZATION */
 /* ########################################################### */
 // Keep screen awake
-requestWakeLock();
+//requestWakeLock();
 setStorage();
 let LIKES_PLAYLIST = getLikesPlaylist().reverse();
 setHTMLTitle(APP_NAME);
@@ -534,7 +534,6 @@ FOOTER.innerHTML = `
   </button>
   <button onclick="onSectionButtonClick('playing')" style="position: relative; justify-content-center">
     <div id="playingIcon" class="inactive"></div>
-    <!-- ${getSvgIcon('chart-simple', 'icon-s icon-fg-0 inactive', 'playingIcon')} -->
   </button>
   <button onclick="onSectionButtonClick('likes')">
     ${getSvgIcon('heart', 'icon-s icon-fg-0 inactive', 'likesIcon')}
