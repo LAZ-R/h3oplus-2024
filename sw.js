@@ -25,4 +25,4 @@ self.addEventListener('fetch', function(e) {
   );
 });
 
-const version = '0.0.10';
+const version = '0.0.11';

@@ -209,7 +209,6 @@ const playCurrentSong = () => {
 
   // Après loading
   wavesurfer.on('ready', function () {
-      //viderLoading();
       let totalTime = Math.round(wavesurfer.getDuration());
       //console.log(totalTime)
       //totalTime = lenghtToString(totalTime);
@@ -561,7 +560,7 @@ let isCurrentlyPlaying = false;
 let wavesurfer = WaveSurfer.create({
   container: '#waveform',
   progressColor: nuwaColor,
-  //barWidth: 1
+  barWidth: 1
 });
 
 let CURRENT_CONTEXT = 'allSongs';

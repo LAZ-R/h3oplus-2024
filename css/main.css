@@ -268,7 +268,23 @@ html, body {
           #waveform {
             overflow: hidden;
             height: 10svh;
-            cursor: pointer;
+
+            /* Tablet */
+            /* @media (min-width: 767px) and (max-width: 1279px) { 
+              
+            } */
+            /* Laptop */
+            @media (min-width: 1280px) and (max-width: 1919px) { 
+              &:hover {
+                cursor: pointer;
+              }
+            }
+            /* Desktop */
+            @media (min-width: 1920px) { 
+              &:hover {
+                cursor: pointer;
+              }
+            }
           }
         }
       }
