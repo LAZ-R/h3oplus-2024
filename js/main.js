@@ -1,6 +1,6 @@
 import { requestWakeLock } from "./utils/wakelock.js";
 import { APP_NAME, APP_VERSION } from "../app-properties.js";
-import { bpmToMillisecondsPerBeat, getRandomIntegerBetween, setHTMLTitle } from "./utils/UTILS.js";
+import { bpmToMillisecondsPerBeat, getRandomIntegerBetween, setFavicon, setHTMLTitle } from "./utils/UTILS.js";
 import { getSvgIcon } from "./services/icons.service.js";
 import { getAllSongsCardsIhm, getLatestSong, getSongById, getSongCardIhm, setSongPlayingFooterIhm, setSongPlayingSectionIhm, setSongFooterCoverIhm, isSongLiked, getLikesPlaylist, getLikesCardsIhm } from "./services/songs.service.js";
 import { nuwa, SONGS } from "./data/songs.data.js";
@@ -181,6 +181,8 @@ export const getPlaylist = (context) => {
 const playCurrentSong = () => {
   // lecture en cours
   turnAnimationsOff();
+  setHTMLTitle(`${APP_NAME}`);
+  setFavicon('favicon.ico');
 
   // Préparation du loading
   setSongPlayingFooterIhm(CURRENT_PLAYING_SONG);
@@ -194,10 +196,14 @@ const playCurrentSong = () => {
   document.getElementById('waveform').innerHTML = '';
   wavesurfer = WaveSurfer.create({
     container: '#waveform',
-    waveColor: '#ffffff',
+    waveColor: '#808080', // bg
     progressColor: CURRENT_PLAYING_SONG.artist == nuwa ? nuwaColor : qargoColor,
-    barWidth: .1,
-    height: 'auto'
+    //barWidth: .1,
+    cursorColor: 'red',
+    dragToSeek: true,
+    cursorWidth: 0,
+    barGap: 0,
+    height: 'auto',
   });
   wavesurfer.load(CURRENT_PLAYING_SONG.audioSrc);
 
@@ -220,6 +226,8 @@ const playCurrentSong = () => {
         onPlayPauseButtonClick();
       } else {
         wavesurfer.play();
+        setHTMLTitle(`${CURRENT_PLAYING_SONG.artist} - ${CURRENT_PLAYING_SONG.name}`);
+        setFavicon(CURRENT_PLAYING_SONG.coverSrc);
       }
   });
 
@@ -286,6 +294,8 @@ const onPlayPauseButtonClick = () => {
   if (isCurrentlyPlaying) {
     if (wavesurfer.getCurrentTime() != 0) {
       wavesurfer.play();
+      setHTMLTitle(`${CURRENT_PLAYING_SONG.artist} - ${CURRENT_PLAYING_SONG.name}`);
+      setFavicon(CURRENT_PLAYING_SONG.coverSrc);
       turnAnimationsOn();
       playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-s icon-fg-0')}`;
       playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('pause', 'icon-m icon-fg-0')}`;
@@ -295,6 +305,8 @@ const onPlayPauseButtonClick = () => {
   } else {
     wavesurfer.pause();
     turnAnimationsOff();
+    setHTMLTitle(`${APP_NAME}`);
+    setFavicon('favicon.ico');
     playingFooterPlayPauseButton.innerHTML = `${getSvgIcon('play', 'icon-s icon-fg-0')}`;
     playingSectionPlayPauseButton.innerHTML = `${getSvgIcon('play', 'icon-m icon-fg-0')}`;
   }
@@ -548,9 +560,8 @@ let isCurrentlyPlaying = false;
 
 let wavesurfer = WaveSurfer.create({
   container: '#waveform',
-  waveColor: '#727e7e',
   progressColor: nuwaColor,
-  barWidth: 1
+  //barWidth: 1
 });
 
 let CURRENT_CONTEXT = 'allSongs';

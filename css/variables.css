@@ -35,8 +35,11 @@
   --color--fg-100: hsl(0, 0%, 0%);
 
   /* special */
-  --color--nuwa:  #74cdd3;
-  --color--qargo: #e27676;
+  /* --color--nuwa:  #74cdd3;
+  --color--qargo: #e27676; */
+  
+  --color--nuwa:  #ffffff;
+  --color--qargo: #ffffff;
 
   /* ======================================================= */
   /* APPLIED COLORS */

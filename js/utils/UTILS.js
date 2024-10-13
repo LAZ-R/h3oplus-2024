@@ -41,6 +41,10 @@ export const setHTMLTitle = (pageTitle) => {
   document.getElementById('appleTitle').setAttribute('content', pageTitle);
 }
 
+export const setFavicon = (iconSrc) => {
+  document.getElementById('favicon').setAttribute('href', `${iconSrc}`);
+}
+
 /* ######################################################################### */
 /* -------------------------------- COLORS --------------------------------- */
 /* ######################################################################### */
